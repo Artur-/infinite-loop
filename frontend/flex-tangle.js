@@ -31,8 +31,8 @@ export class FlexTangle extends LitElement {
         width: 100%;
       }
       .imagecontainer {
-        display: flex;
-        flex-direction: row;
+        display: inline-flex;
+        flex-direction: column;
         align-items: baseline;
       }
       .glue {
@@ -153,46 +153,40 @@ export class FlexTangle extends LitElement {
    </g>
 </svg>
 `}
-      <div class="imagecontainer">
-      <vaadin-text-field
-          label="Image 1"
-          .value="${this.image1}"
-          @change="${e => (this.image1 = e.target.value)}"
-        ></vaadin-text-field>
-        <vaadin-checkbox .checked=${this.slice1} @change="${e =>
-      (this.slice1 = e.target.checked)}">Stretch</vaadin-checkbox>
-        </div>
-        <div class="imagecontainer">
-        <vaadin-text-field
-          label="Image 2"
-          .value="${this.image2}"
-          @change="${e => (this.image2 = e.target.value)}"
-        ></vaadin-text-field>
-        <vaadin-checkbox .checked=${this.slice2} @change="${e =>
-      (this.slice2 = e.target.checked)}">Stretch</vaadin-checkbox>
-        </div>
-        <div class="imagecontainer">
-        <vaadin-text-field
-          label="Image 3"
-          .value="${this.image3}"
-          @change="${e => (this.image3 = e.target.value)}"
-        ></vaadin-text-field>
-        <vaadin-checkbox .checked=${this.slice3} @change="${e =>
-      (this.slice3 = e.target.checked)}">Stretch</vaadin-checkbox>
-        </div>
-        <div class="imagecontainer">
-        <vaadin-text-field
-          label="Image 4"
-          .value="${this.image4}"
-          @change="${e => (this.image4 = e.target.value)}"
-        ></vaadin-text-field>
-        <vaadin-checkbox .checked=${this.slice4} @change="${e =>
-      (this.slice4 = e.target.checked)}">Stretch</vaadin-checkbox>
-        </div>
-
+${[1, 2, 3, 4].map(
+  nr => html`
+    <div class="imagecontainer">
+      Image ${nr}<br />
+      <vaadin-upload
+        @upload-before="${e => this.handleUpload(e, `image${nr}`)}"
+        capture="camera"
+        accept="image/*"
+      >
+      </vaadin-upload>
+      <vaadin-checkbox
+        .checked=${this[`slice${nr}`]}
+        @change="${e => (this[`slice${nr}`] = e.target.checked)}"
+        >Stretch</vaadin-checkbox
+      >
+    </div>
+  `
+)}
       </div>
+      <p>
       <vaadin-button @click="${e => window.print()}">Print</vaadin-button>
+      </p>
     `;
+  }
+  handleUpload(e, v) {
+    e.preventDefault();
+    e.target.files = [];
+    var reader = new FileReader();
+    reader.addEventListener("loadend", ee => {
+      const data = reader.result;
+      this[v] = data;
+    });
+
+    reader.readAsDataURL(e.detail.file);
   }
 }
 customElements.define("flex-tangle", FlexTangle);
