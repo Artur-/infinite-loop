@@ -184,6 +184,10 @@ ${[1, 2, 3, 4].map(
     reader.addEventListener("loadend", ee => {
       const data = reader.result;
       this[v] = data;
+      // Yey Safari..
+      this.shadowRoot
+        .querySelectorAll("use")
+        .forEach(use => use.setAttribute("href", use.getAttribute("href")));
     });
 
     reader.readAsDataURL(e.detail.file);
