@@ -26,6 +26,9 @@ export class FlexTangle extends LitElement {
         :host > svg {
           display: inherit !important;
         }
+        .instructions {
+          display: inherit !important;
+        }
       }
       vaadin-text-field {
         width: 100%;
@@ -39,6 +42,12 @@ export class FlexTangle extends LitElement {
         font-size: 3px;
         stroke-width: 0px;
         fill: black;
+      }
+      .instructions {
+        font-size: 2px;
+        fill: black;
+        stroke: none;
+        display: none;
       }
     `;
   }
@@ -150,7 +159,14 @@ export class FlexTangle extends LitElement {
       <use href="#fold-vertical" x="40" y="40"/>
       <use href="#fold-vertical" x="80" y="40"/>
       <use href="#fold-vertical" x="120" y="40"/>
-   </g>
+      <text x="10" y="55" class="instructions">
+        <tspan x="0" dy="1.2em">1. Fold and unfold along the dashed lines.</tspan>
+        <tspan x="0" dy="1.2em">2. Fold and unfold along the diagonal lines.</tspan>
+        <tspan x="0" dy="1.2em">3. Cut along the outer edge (remove the lower dashed lines)</tspan>
+        <tspan x="0" dy="1.2em">4. Fold so that two glue tabs on top align with the polygon at the bottom.</tspan>
+        <tspan x="0" dy="1.2em">5. Add glue on tabs marked with “glue” and press together. Finally glue the end tabs.</tspan>
+      </text>
+</g>
 </svg>
 `}
 ${[1, 2, 3, 4].map(
