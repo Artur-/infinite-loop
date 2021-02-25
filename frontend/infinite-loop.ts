@@ -1,22 +1,30 @@
-import { LitElement, css, html, svg } from "lit-element";
-import "@vaadin/vaadin-text-field";
-import "@vaadin/vaadin-checkbox";
 import "@vaadin/vaadin-button";
+import "@vaadin/vaadin-checkbox";
+import { CheckboxCheckedChanged } from "@vaadin/vaadin-checkbox";
+import "@vaadin/vaadin-text-field";
 import "@vaadin/vaadin-upload";
+import { UploadBefore, UploadElement } from "@vaadin/vaadin-upload";
+import {
+  css,
+  customElement,
+  html,
+  internalProperty,
+  LitElement,
+  svg,
+} from "lit-element";
 
-export class FlexTangle extends LitElement {
-  static get properties() {
-    return {
-      image1: String,
-      image2: String,
-      image3: String,
-      image4: String,
-      slice1: Boolean,
-      slice2: Boolean,
-      slice3: Boolean,
-      slice4: Boolean
-    };
-  }
+@customElement("infinite-loop")
+export class InfiniteLoop extends LitElement {
+  @internalProperty()
+  private slice = [true, true, true, true];
+  @internalProperty()
+  private image = [
+    "https://images.unsplash.com/photo-1559036211-b50481ffd03d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1965&q=80",
+    "https://images.unsplash.com/photo-1563618770208-088b83ebd2b0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1951&q=80",
+    "https://images.unsplash.com/photo-1546488718-3403ccbba0dc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1949&q=80",
+    "https://images.unsplash.com/photo-1464002255390-2de63a26c637?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80",
+  ];
+
   static get styles() {
     return css`
       @media print {
@@ -51,21 +59,6 @@ export class FlexTangle extends LitElement {
       }
     `;
   }
-  constructor() {
-    super();
-    this.slice1 = true;
-    this.slice2 = true;
-    this.slice3 = true;
-    this.slice4 = true;
-    this.image1 =
-      "https://images.unsplash.com/photo-1559036211-b50481ffd03d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1965&q=80";
-    this.image2 =
-      "https://images.unsplash.com/photo-1563618770208-088b83ebd2b0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1951&q=80";
-    this.image3 =
-      "https://images.unsplash.com/photo-1546488718-3403ccbba0dc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1949&q=80";
-    this.image4 =
-      "https://images.unsplash.com/photo-1464002255390-2de63a26c637?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80";
-  }
 
   render() {
     return html`
@@ -91,24 +84,24 @@ export class FlexTangle extends LitElement {
       </g>
       <path id="fold-vertical" d="m 0,0 0,10 z" stroke-dasharray="0.3" stroke-width="0.1px"/>
       <image href="${
-        this.image1
+        this.image[0]
       }" id="pic1" width="40" height="20" preserveAspectRatio="xMidYMid ${
-        this.slice1 ? "slice" : ""
+        this.slice[0] ? "slice" : ""
       }" clip-path="url(#image-clip)"/>
       <image href="${
-        this.image2
+        this.image[1]
       }" id="pic2" width="40" height="20" preserveAspectRatio="xMidYMid ${
-        this.slice2 ? "slice" : ""
+        this.slice[1] ? "slice" : ""
       }" clip-path="url(#image-clip)"/>
       <image href="${
-        this.image3
+        this.image[2]
       }" id="pic3" width="40" height="20" preserveAspectRatio="xMidYMid ${
-        this.slice3 ? "slice" : ""
+        this.slice[2] ? "slice" : ""
       }" clip-path="url(#image-clip)"/>
       <image href="${
-        this.image4
+        this.image[3]
       }" id="pic4" width="40" height="20" preserveAspectRatio="xMidYMid ${
-        this.slice4 ? "slice" : ""
+        this.slice[3] ? "slice" : ""
       }" clip-path="url(#image-clip)"/>
    </defs>
 
@@ -169,19 +162,20 @@ export class FlexTangle extends LitElement {
 </g>
 </svg>
 `}
-${[1, 2, 3, 4].map(
-  nr => html`
+${[0, 1, 2, 3].map(
+  (id) => html`
     <div class="imagecontainer">
-      Image ${nr}<br />
+      Image ${id + 1}<br />
       <vaadin-upload
-        @upload-before="${e => this.handleUpload(e, `image${nr}`)}"
+        @upload-before="${(e: UploadBefore) => this.handleUpload(e, id)}"
         capture="camera"
         accept="image/*"
       >
       </vaadin-upload>
       <vaadin-checkbox
-        .checked=${this[`slice${nr}`]}
-        @change="${e => (this[`slice${nr}`] = e.target.checked)}"
+        .checked=${this.slice[id]}
+        @checked-changed="${(e: CheckboxCheckedChanged) =>
+          this.setStretch(e.detail.value, id)}"
         >Stretch</vaadin-checkbox
       >
     </div>
@@ -189,24 +183,28 @@ ${[1, 2, 3, 4].map(
 )}
       </div>
       <p>
-      <vaadin-button @click="${e => window.print()}">Print</vaadin-button>
+      <vaadin-button @click="${() => window.print()}">Print</vaadin-button>
       </p>
     `;
   }
-  handleUpload(e, v) {
+  setStretch(stretch: boolean, id: number) {
+    this.slice[id] = stretch;
+    this.requestUpdate();
+  }
+  handleUpload(e: UploadBefore, id: number) {
     e.preventDefault();
-    e.target.files = [];
+    (e.target! as UploadElement).files = [];
     var reader = new FileReader();
-    reader.addEventListener("loadend", ee => {
-      const data = reader.result;
-      this[v] = data;
+    reader.addEventListener("loadend", () => {
+      const data = reader.result as string;
+      this.image[id] = data;
       // Yey Safari..
-      this.shadowRoot
+      this.renderRoot
         .querySelectorAll("use")
-        .forEach(use => use.setAttribute("href", use.getAttribute("href")));
+        .forEach((use) => use.setAttribute("href", use.getAttribute("href")!));
+      this.requestUpdate();
     });
 
     reader.readAsDataURL(e.detail.file);
   }
 }
-customElements.define("flex-tangle", FlexTangle);
