@@ -16,7 +16,9 @@ import {
 @customElement("infinite-loop")
 export class InfiniteLoop extends LitElement {
   @internalProperty()
-  private slice = [true, true, true, true];
+  private stretch = [true, true, true, true];
+  @internalProperty()
+  private hideImage = [false, false, false, false];
   @internalProperty()
   private image = [
     "https://images.unsplash.com/photo-1559036211-b50481ffd03d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1965&q=80",
@@ -55,6 +57,14 @@ export class InfiniteLoop extends LitElement {
         font-size: 2px;
         fill: black;
         stroke: none;
+        display: none;
+      }
+      .embeddedupload {
+        padding: 0;
+        border: 0;
+        height: 20px;
+      }
+      [hidden] {
         display: none;
       }
     `;
@@ -101,7 +111,7 @@ export class InfiniteLoop extends LitElement {
               id="pic1"
               width="40"
               height="20"
-              preserveAspectRatio="xMidYMid ${this.slice[0] ? "slice" : ""}"
+              preserveAspectRatio="xMidYMid ${this.stretch[0] ? "slice" : ""}"
               clip-path="url(#image-clip)"
             />
             <image
@@ -109,7 +119,7 @@ export class InfiniteLoop extends LitElement {
               id="pic2"
               width="40"
               height="20"
-              preserveAspectRatio="xMidYMid ${this.slice[1] ? "slice" : ""}"
+              preserveAspectRatio="xMidYMid ${this.stretch[1] ? "slice" : ""}"
               clip-path="url(#image-clip)"
             />
             <image
@@ -117,7 +127,7 @@ export class InfiniteLoop extends LitElement {
               id="pic3"
               width="40"
               height="20"
-              preserveAspectRatio="xMidYMid ${this.slice[2] ? "slice" : ""}"
+              preserveAspectRatio="xMidYMid ${this.stretch[2] ? "slice" : ""}"
               clip-path="url(#image-clip)"
             />
             <image
@@ -125,40 +135,42 @@ export class InfiniteLoop extends LitElement {
               id="pic4"
               width="40"
               height="20"
-              preserveAspectRatio="xMidYMid ${this.slice[3] ? "slice" : ""}"
+              preserveAspectRatio="xMidYMid ${this.stretch[3] ? "slice" : ""}"
               clip-path="url(#image-clip)"
             />
           </defs>
 
           <g id="all" fill="none" style="stroke:#000000;stroke-width:0.3px">
             <g fill="none" clip-path="url(#polys)">
-              <use href="#pic1" x="-20" y="0" />
+              <use href="#pic1" x="-20" y="0" ?hidden=${this.hideImage[0]} />
               <use href="#poly" x="-20" y="0" />
-              <use href="#pic1" x="20" y="0" />
+              <use href="#pic1" x="20" y="0" ?hidden=${this.hideImage[0]} />
               <use href="#poly" x="20" y="0" />
-              <use href="#pic1" x="60" y="0" />
+              <use href="#upload" x="0" y="0" />
+
+              <use href="#pic1" x="60" y="0" ?hidden=${this.hideImage[0]} />
               <use href="#poly" x="60" y="0" />
-              <use href="#pic1" x="100" y="0" />
+              <use href="#pic1" x="100" y="0" ?hidden=${this.hideImage[0]} />
               <use href="#poly" x="100" y="0" />
-              <use href="#pic2" x="0" y="10" />
+              <use href="#pic2" x="0" y="10" ?hidden=${this.hideImage[1]} />
               <use href="#poly" x="0" y="10" />
-              <use href="#pic2" x="40" y="10" />
+              <use href="#pic2" x="40" y="10" ?hidden=${this.hideImage[1]} />
               <use href="#poly" x="40" y="10" />
-              <use href="#pic2" x="80" y="10" />
+              <use href="#pic2" x="80" y="10" ?hidden=${this.hideImage[1]} />
               <use href="#poly" x="80" y="10" />
-              <use href="#pic3" x="-20" y="20" />
+              <use href="#pic3" x="-20" y="20" ?hidden=${this.hideImage[2]} />
               <use href="#poly" x="-20" y="20" />
-              <use href="#pic3" x="20" y="20" />
+              <use href="#pic3" x="20" y="20" ?hidden=${this.hideImage[2]} />
               <use href="#poly" x="20" y="20" />
-              <use href="#pic3" x="60" y="20" />
+              <use href="#pic3" x="60" y="20" ?hidden=${this.hideImage[2]} />
               <use href="#poly" x="60" y="20" />
-              <use href="#pic3" x="100" y="20" />
+              <use href="#pic3" x="100" y="20" ?hidden="${this.hideImage[2]}" />
               <use href="#poly" x="100" y="20" />
-              <use href="#pic4" x="0" y="30" />
+              <use href="#pic4" x="0" y="30" ?hidden=${this.hideImage[3]} />
               <use href="#poly" x="0" y="30" />
-              <use href="#pic4" x="40" y="30" />
+              <use href="#pic4" x="40" y="30" ?hidden=${this.hideImage[3]} />
               <use href="#poly" x="40" y="30" />
-              <use href="#pic4" x="80" y="30" />
+              <use href="#pic4" x="80" y="30" ?hidden=${this.hideImage[3]} />
               <use href="#poly" x="80" y="30" />
               <path d="m 0,0 0,40" fill="red" />
             </g>
@@ -210,10 +222,16 @@ ${[0, 1, 2, 3].map(
       >
       </vaadin-upload>
       <vaadin-checkbox
-        .checked=${this.slice[id]}
+        .checked=${this.stretch[id]}
         @checked-changed="${(e: CheckboxCheckedChanged) =>
           this.setStretch(e.detail.value, id)}"
         >Stretch</vaadin-checkbox
+      >
+      <vaadin-checkbox
+        .checked=${this.hideImage[id]}
+        @checked-changed="${(e: CheckboxCheckedChanged) =>
+          this.setHideImage(e.detail.value, id)}"
+        >Hide image</vaadin-checkbox
       >
     </div>
   `
@@ -225,7 +243,11 @@ ${[0, 1, 2, 3].map(
     `;
   }
   setStretch(stretch: boolean, id: number) {
-    this.slice[id] = stretch;
+    this.stretch[id] = stretch;
+    this.requestUpdate();
+  }
+  setHideImage(hideImage: boolean, id: number) {
+    this.hideImage[id] = hideImage;
     this.requestUpdate();
   }
   handleUpload(e: UploadBefore, id: number) {
