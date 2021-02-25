@@ -29,6 +29,10 @@ export class InfiniteLoop extends LitElement {
 
   static get styles() {
     return css`
+      :host {
+        display: flex;
+        flex-direction: column;
+      }
       @media print {
         :host > * {
           display: none !important;
@@ -38,6 +42,10 @@ export class InfiniteLoop extends LitElement {
         }
         .instructions {
           display: inherit !important;
+        }
+        #flextangle {
+          width: 100% !important;
+          padding: 0 !important;
         }
       }
       vaadin-text-field {
@@ -67,18 +75,42 @@ export class InfiniteLoop extends LitElement {
       [hidden] {
         display: none;
       }
+      header {
+        background: rgb(50, 50, 50);
+        font-size: 2em;
+        color: rgb(200, 200, 200);
+        text-align: center;
+        padding: 5px;
+      }
+      header > p {
+        display: block;
+      }
+      #flextangle {
+        width: 100%;
+        padding-top: 1em;
+        padding-left: 5%;
+        padding-right: 5%;
+        box-sizing: border-box;
+      }
+      #controls {
+        padding-left: 5%;
+        padding-right: 5%;
+      }
     `;
   }
 
   render() {
     return html`
+      <header>
+        <p>Create your own customized paper toy that you can spin forever.</p>
+      </header>
       ${svg`
         <?xml version="1.0" encoding="UTF-8" standalone="no"?>
         <svg
+        id="flextangle"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 125 70"
           version="1.1"
-          style="height:auto"
         >
           <defs>
             <path
@@ -211,35 +243,42 @@ export class InfiniteLoop extends LitElement {
           </g>
         </svg>
       `}
-${[0, 1, 2, 3].map(
-  (id) => html`
-    <div class="imagecontainer">
-      Image ${id + 1}<br />
-      <vaadin-upload
-        @upload-before="${(e: UploadBefore) => this.handleUpload(e, id)}"
-        capture="camera"
-        accept="image/*"
-      >
-      </vaadin-upload>
-      <vaadin-checkbox
-        .checked=${this.stretch[id]}
-        @checked-changed="${(e: CheckboxCheckedChanged) =>
-          this.setStretch(e.detail.value, id)}"
-        >Stretch</vaadin-checkbox
-      >
-      <vaadin-checkbox
-        .checked=${this.hideImage[id]}
-        @checked-changed="${(e: CheckboxCheckedChanged) =>
-          this.setHideImage(e.detail.value, id)}"
-        >Hide image</vaadin-checkbox
-      >
-    </div>
-  `
-)}
+      <div id="controls">
+        ${[0, 1, 2, 3].map(
+          (id) => html`
+            <div class="imagecontainer">
+              Image ${id + 1}<br />
+              <vaadin-upload
+                @upload-before="${(e: UploadBefore) =>
+                  this.handleUpload(e, id)}"
+                capture="camera"
+                accept="image/*"
+              >
+              </vaadin-upload>
+              <vaadin-checkbox
+                .checked=${this.stretch[id]}
+                @checked-changed="${(e: CheckboxCheckedChanged) =>
+                  this.setStretch(e.detail.value, id)}"
+                >Stretch</vaadin-checkbox
+              >
+              <vaadin-checkbox
+                .checked=${this.hideImage[id]}
+                @checked-changed="${(e: CheckboxCheckedChanged) =>
+                  this.setHideImage(e.detail.value, id)}"
+                >Hide image</vaadin-checkbox
+              >
+            </div>
+          `
+        )}
+        <p>
+          <br /><br /><br />
+          <vaadin-button @click="${() => window.print()}">Print</vaadin-button>
+          <a href="https://www.youtube.com/watch?v=t_OqsiRClRc"
+            >For assembly instructions, see for instance this video</a
+          >
+        </p>
+        <p>Use thicker paper and print landscape for the best result</p>
       </div>
-      <p>
-      <vaadin-button @click="${() => window.print()}">Print</vaadin-button>
-      </p>
     `;
   }
   setStretch(stretch: boolean, id: number) {
